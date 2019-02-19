@@ -26,7 +26,7 @@ def setup():
     GPIO.setup(MISO, GPIO.IN)
     GPIO.setup(CLK, GPIO.OUT)
     GPIO.setup(CS, GPIO.OUT)
-    client.connect(host='174.99.21.72', port="1883", keepalive="60", bind_address="")
+    client.connect(host="174.99.21.72", port="1883", keepalive="60", bind_address="")
     pass
 
 def on_message(client, userdata, message):
