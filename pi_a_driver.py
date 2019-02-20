@@ -22,7 +22,7 @@ THRESHOLD = .075
 client = mqtt.Client('pi_a_client')
 
 def on_log(client, userdata, level, buf):
-    print(buf)
+    test = 1
 
 def on_disconnect(client, userdata, flags, rc=0):
     ret = client.publish("Status/RasberryPiA", "offline", qos = 2, retain = 2)
@@ -90,7 +90,6 @@ def main():
         #compare values against threshold on whether or not to send the values
         
         if abs(values[0] - prevLight) > THRESHOLD or abs(values[1] - prevPotent) > THRESHOLD:
-            print(prevLight, values[0])
             prevLight = values[0]
             prevPotent = values[1]
             client.publish("lightSensor", values[0], qos = 2, retain = True)
