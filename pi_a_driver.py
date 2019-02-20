@@ -76,7 +76,7 @@ def main():
     prevLight = 0.0
     prevPotent = 0.0
         
-    ret = client.publish("Status/RasberryPiA", "online", qos = 2, retain = True)
+    ret = client.publish("Status/RaspberryPiA", "online", qos = 2, retain = True)
     print("Publish ", ret)
     client.subscribe("lightSensor", 2)
     client.subscribe("threshold", 2)
