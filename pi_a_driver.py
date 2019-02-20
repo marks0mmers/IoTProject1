@@ -78,7 +78,8 @@ def main():
         
     ret = client.publish("Status/RasberryPiA", "online", qos = 2, retain = True)
     print("Publish ", ret)
-    
+    client.subscribe("lightSensor", 2)
+    client.subscribe("threshold", 2)
     while True:
         # Read all the ADC channel values in a list.
         values = [0]*2
@@ -94,9 +95,6 @@ def main():
             prevPotent = values[1]
             client.publish("lightSensor", values[0], qos = 2, retain = True)
             client.publish("threshold", values[1], qos = 2, retain = True)
-    
-        client.subscribe("lightSensor", 2)
-        client.subscribe("threshold", 2)
 
         time.sleep(.1)
 
@@ -104,7 +102,7 @@ def main():
 def destroy():
     #release resource
     GPIO.cleanup()
-    client.loop_stop()
+    client.publish("Status/RaspberryPiC", "offline", qos=2, retain=True)    
     client.disconnect()
     
 #
