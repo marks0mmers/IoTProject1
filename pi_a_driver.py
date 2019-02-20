@@ -12,10 +12,17 @@ MISO = 9
 MOSI = 10
 CS = 8
 analogChannel = 0;
+
 mcp = Adafruit_MCP3008.MCP3008(clk=CLK, cs=CS, miso=MISO, mosi=MOSI)
+
 LIGHT_MAX = 1200
 POTENT_MAX = 1023
+THRESHOLD = 50
+
 client = mqtt.Client('pi_a_client')
+
+prevLight = 0
+prevPotent = 0
 
 def on_log(client, userdata, level, buf):
     print(buf)
@@ -66,34 +73,41 @@ def setup():
 
 def main():
     print('Reading MCP3008 values, press Ctrl-C to quit...')
+
+    # Main program loop. 
     client.loop_start()
-    # Print nice channel column headers.
-    print('| {0:>4} | {1:>4} |'.format(*range(2)))
-    print('-' * 57)
-    # Main program loop.
+    
     while not client.connected_flag:
-        # Read all the ADC channel values in a list.
-        values = [0]*2
-        # The read_adc function will get the value of the specified channel (0-7).
-        values[0] = mcp.read_adc(0) * 1.0 / LIGHT_MAX
-        values[1] = mcp.read_adc(1) * 1.0 / POTENT_MAX
-
-        client.publish("lightSensor", values[0])
-        client.publish("threshold", values[1])
-        client.subscribe("lightSensor", 2)
-        client.subscribe("threshold", 2)
-
-
-        # Print the ADC values.
-        print('| {0:>4} | {1:>4} |'.format(*values))
+        print("Waiting for valid connection")
         time.sleep(1)
+        
+    ret = client.publish("Status/RasberryPiA", "online", qos = 2, retain = True)
+    print("Publish ", ret)
+    # Read all the ADC channel values in a list.
+    values = [0]*2
+    # The read_adc function will get the value of the specified channel (0-7).
+    values[0] = mcp.read_adc(0) * 1.0 / LIGHT_MAX
+    values[1] = mcp.read_adc(1) * 1.0 / POTENT_MAX
+
+    if abs(values[0] - prevLight) > THRESHOLD or abs(values[1] - prevPotent) > THRESHOLD:
+        prevLight = values[0]
+        prevPotent = values[1]
+        client.publish("lightSensor", values[0], qos = 2, retain = True)
+        client.publish("threshold", values[1], qos = 2, retain = True)
+    
+    client.subscribe("lightSensor", 2)
+    client.subscribe("threshold", 2)
+
+    time.sleep(.1)
+    
+    client.loop_stop()
 
 
 #define a destroy function for clean up everything after the script finished
 def destroy():
     #release resource
     GPIO.cleanup()
-    client.loop_stop()
+    client.disconnect()
     
 #
 # if run this script directly ,do:
