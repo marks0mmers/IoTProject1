@@ -20,6 +20,7 @@ POTENT_MAX = 1023
 THRESHOLD = .075
 
 client = mqtt.Client('pi_a_client')
+isClientConnected = False
 
 prevLight = 0.0
 prevPotent = 0.0
@@ -35,7 +36,7 @@ def on_disconnect(client, userdata, flags, rc=0):
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         # Set flag that a client is connected
-        client.connected_flag = True
+        isClientConnected = True
         print("Connected OK")
     else:
         print("Bad connection! Returned code = ", rc)
@@ -78,7 +79,7 @@ def main():
     # Main program loop. 
     client.loop_start()
     
-    while not client.connected_flag:
+    while not isClientConnected:
         print("Waiting for valid connection")
         time.sleep(1)
         
