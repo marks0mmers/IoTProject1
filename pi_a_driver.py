@@ -21,9 +21,6 @@ THRESHOLD = .075
 
 client = mqtt.Client('pi_a_client')
 
-prevLight = 0.0
-prevPotent = 0.0
-
 def on_log(client, userdata, level, buf):
     print(buf)
 
@@ -76,6 +73,8 @@ def main():
 
     # Main program loop. 
     client.loop_start()
+    prevLight = 0.0
+    prevPotent = 0.0
         
     ret = client.publish("Status/RasberryPiA", "online", qos = 2, retain = True)
     print("Publish ", ret)
