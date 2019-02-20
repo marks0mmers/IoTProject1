@@ -38,10 +38,10 @@ def on_connect(client, userdata, flags, rc):
         client.loop_stop()
 
 def on_message(client, userdata, message):
-    print("message received " ,str(message.payload.decode("utf-8")))
-    print("message topic=",message.topic)
-    print("message qos=",message.qos)
-    print("message retain flag=",message.retain)
+    #print("message received " ,str(message.payload.decode("utf-8")))
+    #print("message topic=",message.topic)
+    #print("message qos=",message.qos)
+    #print("message retain flag=",message.retain)
 
 #setup function for some setup---custom function
 def setup():
@@ -87,7 +87,9 @@ def main():
         values[1] = mcp.read_adc(1) * 1.0 / POTENT_MAX
 
         #compare values against threshold on whether or not to send the values
+        
         if abs(values[0] - prevLight) > THRESHOLD or abs(values[1] - prevPotent) > THRESHOLD:
+            print(prevLight, value[0])
             prevLight = values[0]
             prevPotent = values[1]
             client.publish("lightSensor", values[0], qos = 2, retain = True)
