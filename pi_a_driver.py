@@ -89,7 +89,7 @@ def main():
         #compare values against threshold on whether or not to send the values
         
         if abs(values[0] - prevLight) > THRESHOLD or abs(values[1] - prevPotent) > THRESHOLD:
-            print(prevLight, value[0])
+            print(prevLight, values[0])
             prevLight = values[0]
             prevPotent = values[1]
             client.publish("lightSensor", values[0], qos = 2, retain = True)
