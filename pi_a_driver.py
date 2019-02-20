@@ -43,69 +43,59 @@ def on_message(client, userdata, message):
     #print("message qos=",message.qos)
     #print("message retain flag=",message.retain)
 
-#setup function for some setup---custom function
-def setup():
-    #set the gpio modes to BCM numbering
-    GPIO.setmode(GPIO.BCM)
+#set the gpio modes to BCM numbering
+GPIO.setmode(GPIO.BCM)
     
-    # set up the SPI interface pins
-    GPIO.setup(MOSI, GPIO.OUT)
-    GPIO.setup(MISO, GPIO.IN)
-    GPIO.setup(CLK, GPIO.OUT)
-    GPIO.setup(CS, GPIO.OUT)
-    
-    # Bind call backs
-    client.on_connect = on_connect
-    client.on_disconnect = on_disconnect
-    client.on_log = on_log
-    client.on_message = on_message
-    
-    # Set last will message
-    lwm = "offline"
-    lastWillTopic = "Status/RaspberryPiA"
-    client.will_set(lastWillTopic, lwm, qos = 2, retain = True)
-    
-    client.connect(host="10.153.3.190", port="1883")
-    pass
+# set up the SPI interface pins
+GPIO.setup(MOSI, GPIO.OUT)
+GPIO.setup(MISO, GPIO.IN)
+GPIO.setup(CLK, GPIO.OUT)
+GPIO.setup(CS, GPIO.OUT)
 
-def main():
-    print('Reading MCP3008 values, press Ctrl-C to quit...')
+# Bind call backs
+client.on_connect = on_connect
+client.on_disconnect = on_disconnect
+client.on_log = on_log
+client.on_message = on_message
 
-    # Main program loop. 
-    client.loop_start()
-    prevLight = 0.0
-    prevPotent = 0.0
-        
-    ret = client.publish("Status/RasberryPiA", "online", qos = 2, retain = True)
-    print("Publish ", ret)
-    
-    # Read all the ADC channel values in a list.
-    values = [0]*2
-    # The read_adc function will get the value of the specified channel (0-7).
-    values[0] = mcp.read_adc(0) * 1.0 / LIGHT_MAX
-    values[1] = mcp.read_adc(1) * 1.0 / POTENT_MAX
+# Set last will message
+lwm = "offline"
+lastWillTopic = "Status/RaspberryPiA"
+client.will_set(lastWillTopic, lwm, qos = 2, retain = True)
 
-    #compare values against threshold on whether or not to send the values
-    
-    if abs(values[0] - prevLight) > THRESHOLD or abs(values[1] - prevPotent) > THRESHOLD:
-        print(prevLight, values[0])
-        prevLight = values[0]
-        prevPotent = values[1]
-        client.publish("lightSensor", values[0], qos = 2, retain = True)
-        client.publish("threshold", values[1], qos = 2, retain = True)
+client.connect(host="10.153.3.190", port="1883")
 
-    client.subscribe("lightSensor", 2)
-    client.subscribe("threshold", 2)
+print('Reading MCP3008 values, press Ctrl-C to quit...')
 
-    time.sleep(.1)
-    
-    client.loop_stop()
-    #release resource
-    GPIO.cleanup()
-    client.disconnect()
+# Main program loop. 
+client.loop_start()
+prevLight = 0.0
+prevPotent = 0.0
 
-#
-# if run this script directly ,do:
-if __name__ == '__main__':
-    setup()
-    main()
+ret = client.publish("Status/RasberryPiA", "online", qos = 2, retain = True)
+print("Publish ", ret)
+
+# Read all the ADC channel values in a list.
+values = [0]*2
+# The read_adc function will get the value of the specified channel (0-7).
+values[0] = mcp.read_adc(0) * 1.0 / LIGHT_MAX
+values[1] = mcp.read_adc(1) * 1.0 / POTENT_MAX
+
+#compare values against threshold on whether or not to send the values
+
+if abs(values[0] - prevLight) > THRESHOLD or abs(values[1] - prevPotent) > THRESHOLD:
+    print(prevLight, values[0])
+    prevLight = values[0]
+    prevPotent = values[1]
+    client.publish("lightSensor", values[0], qos = 2, retain = True)
+    client.publish("threshold", values[1], qos = 2, retain = True)
+
+client.subscribe("lightSensor", 2)
+client.subscribe("threshold", 2)
+
+time.sleep(.1)
+
+client.loop_stop()
+#release resource
+GPIO.cleanup()
+client.disconnect()
