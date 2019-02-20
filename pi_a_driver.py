@@ -17,12 +17,12 @@ mcp = Adafruit_MCP3008.MCP3008(clk=CLK, cs=CS, miso=MISO, mosi=MOSI)
 
 LIGHT_MAX = 1200
 POTENT_MAX = 1023
-THRESHOLD = 50
+THRESHOLD = .075
 
 client = mqtt.Client('pi_a_client')
 
-prevLight = 0
-prevPotent = 0
+prevLight = 0.0
+prevPotent = 0.0
 
 def on_log(client, userdata, level, buf):
     print(buf)
@@ -39,6 +39,7 @@ def on_connect(client, userdata, flags, rc):
         print("Connected OK")
     else:
         print("Bad connection! Returned code = ", rc)
+        client.loop_stop()
 
 def on_message(client, userdata, message):
     print("message received " ,str(message.payload.decode("utf-8")))
@@ -83,30 +84,31 @@ def main():
         
     ret = client.publish("Status/RasberryPiA", "online", qos = 2, retain = True)
     print("Publish ", ret)
-    # Read all the ADC channel values in a list.
-    values = [0]*2
-    # The read_adc function will get the value of the specified channel (0-7).
-    values[0] = mcp.read_adc(0) * 1.0 / LIGHT_MAX
-    values[1] = mcp.read_adc(1) * 1.0 / POTENT_MAX
-
-    if abs(values[0] - prevLight) > THRESHOLD or abs(values[1] - prevPotent) > THRESHOLD:
-        prevLight = values[0]
-        prevPotent = values[1]
-        client.publish("lightSensor", values[0], qos = 2, retain = True)
-        client.publish("threshold", values[1], qos = 2, retain = True)
     
-    client.subscribe("lightSensor", 2)
-    client.subscribe("threshold", 2)
+    while True:
+        # Read all the ADC channel values in a list.
+        values = [0]*2
+        # The read_adc function will get the value of the specified channel (0-7).
+        values[0] = mcp.read_adc(0) * 1.0 / LIGHT_MAX
+        values[1] = mcp.read_adc(1) * 1.0 / POTENT_MAX
 
-    time.sleep(.1)
+        #compare values against threshold on whether or not to send the values
+        if abs(values[0] - prevLight) > THRESHOLD or abs(values[1] - prevPotent) > THRESHOLD:
+            prevLight = values[0]
+            prevPotent = values[1]
+            client.publish("lightSensor", values[0], qos = 2, retain = True)
+            client.publish("threshold", values[1], qos = 2, retain = True)
     
-    client.loop_stop()
+        client.subscribe("lightSensor", 2)
+        client.subscribe("threshold", 2)
 
+        time.sleep(.1)
 
 #define a destroy function for clean up everything after the script finished
 def destroy():
     #release resource
     GPIO.cleanup()
+    client.loop_stop()
     client.disconnect()
     
 #
