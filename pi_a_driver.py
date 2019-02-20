@@ -100,20 +100,12 @@ def main():
     time.sleep(.1)
     
     client.loop_stop()
-
-#define a destroy function for clean up everything after the script finished
-def destroy():
     #release resource
     GPIO.cleanup()
     client.disconnect()
-    
+
 #
 # if run this script directly ,do:
 if __name__ == '__main__':
     setup()
-    try:
-            main()
-    #when 'Ctrl+C' is pressed,child program destroy() will be executed.
-    except KeyboardInterrupt:
-        destroy()
-        pass
+    main()
