@@ -101,7 +101,8 @@ def main():
 def destroy():
     #release resource
     GPIO.cleanup()
-    client.publish("Status/RaspberryPiA", "offline", qos=2, retain=True)    
+    client.publish("Status/RaspberryPiA", "offline", qos=2, retain=True) 
+    client.loop_stop()
     client.disconnect()
     
 #
