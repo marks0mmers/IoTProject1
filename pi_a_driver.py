@@ -92,8 +92,8 @@ def main():
         if abs(values[0] - prevLight) > THRESHOLD or abs(values[1] - prevPotent) > THRESHOLD:
             prevLight = values[0]
             prevPotent = values[1]
-            client.publish("lightSensor", values[0], qos = 2, retain = True)
-            client.publish("threshold", values[1], qos = 2, retain = True)
+            client.publish("lightSensor", values[0], qos = 2, retain = False)
+            client.publish("threshold", values[1], qos = 2, retain = False)
 
         time.sleep(.1)
 
