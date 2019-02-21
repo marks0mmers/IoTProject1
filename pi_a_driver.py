@@ -19,7 +19,7 @@ LIGHT_MAX = 1200
 POTENT_MAX = 1023
 THRESHOLD = .075
 
-client = mqtt.Client('pi_a_client', clean_session = False)
+client = mqtt.Client('pi_a_client')
 
 def on_log(client, userdata, level, buf):
     test = 1
@@ -78,8 +78,8 @@ def main():
         
     ret = client.publish("Status/RaspberryPiA", "online", qos = 2, retain = True)
     print("Publish ", ret)
-    client.subscribe("lightSensor", 2)
-    client.subscribe("threshold", 2)
+    client.subscribe("lightSensor")
+    client.subscribe("threshold")
     while True:
         # Read all the ADC channel values in a list.
         values = [0]*2
