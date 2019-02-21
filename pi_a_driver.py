@@ -19,7 +19,7 @@ LIGHT_MAX = 1200
 POTENT_MAX = 1023
 THRESHOLD = .075
 
-client = mqtt.Client('pi_a_client')
+client = mqtt.Client('pi_a_client', clean_session = False)
 
 def on_log(client, userdata, level, buf):
     test = 1
@@ -92,8 +92,8 @@ def main():
         if abs(values[0] - prevLight) > THRESHOLD or abs(values[1] - prevPotent) > THRESHOLD:
             prevLight = values[0]
             prevPotent = values[1]
-            client.publish("lightSensor", values[0], qos = 2, retain = False)
-            client.publish("threshold", values[1], qos = 2, retain = False)
+            client.publish("lightSensor", values[0], qos = 2, retain = True)
+            client.publish("threshold", values[1], qos = 2, retain = True)
 
         time.sleep(.1)
 
