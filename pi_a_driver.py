@@ -25,7 +25,7 @@ def on_log(client, userdata, level, buf):
     test = 1
 
 def on_disconnect(client, userdata, flags, rc=0):
-    ret = client.publish("Status/RasberryPiA", "offline", qos = 2, retain = 2)
+    ret = client.publish("Status/RasberryPiA", "offline", qos = 2, retain = True)
     print("Publish ", ret) 
     print("Disconnected OK")
     
