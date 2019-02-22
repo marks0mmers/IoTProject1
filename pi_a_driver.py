@@ -26,7 +26,6 @@ def on_log(client, userdata, level, buf):
     test = 1
 
 def on_disconnect(client, userdata, flags, rc=0):
-    print("Publish ", ret) 
     print("Disconnected OK")
     
 def on_connect(client, userdata, flags, rc):
