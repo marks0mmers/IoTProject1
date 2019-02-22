@@ -108,7 +108,6 @@ def main():
 def destroy():
     #release resource
     GPIO.cleanup()
-    client.disconnect()
     
 #
 # if run this script directly ,do:
