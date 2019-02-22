@@ -4,6 +4,7 @@ import RPi.GPIO as GPIO
 import smbus
 import Adafruit_MCP3008
 import paho.mqtt.client as mqtt
+import signal
 
 # change these as desired - they're the pins connected from the
 # SPI port on the ADC to the Cobbler
@@ -25,7 +26,6 @@ def on_log(client, userdata, level, buf):
     test = 1
 
 def on_disconnect(client, userdata, flags, rc=0):
-    ret = client.publish("Status/RasberryPiA", "offline", qos = 2, retain = True)
     print("Publish ", ret) 
     print("Disconnected OK")
     
@@ -42,6 +42,13 @@ def on_message(client, userdata, message):
     #print("message topic=",message.topic)
     #print("message qos=",message.qos)
     #print("message retain flag=",message.retain)
+   
+def signal_handler(sig, frame):
+    client.publish("Status/RaspberryPiA", "offline", qos=2, retain=True)
+    time.sleep(1)
+    print("You pressed Crtl+Z, gracefully disconnecting...")
+    client.loop_stop()
+    client.disconnect()
 
 #setup function for some setup---custom function
 def setup():
@@ -96,6 +103,7 @@ def main():
             client.publish("threshold", values[1], qos = 2, retain = True)
 
         time.sleep(.1)
+        signal.signal(signal.SIGTSTP, signal_handler)
 
 #define a destroy function for clean up everything after the script finished
 def destroy():
@@ -103,7 +111,6 @@ def destroy():
     GPIO.cleanup()
     client.publish("Status/RaspberryPiA", "offline", qos=2, retain=True) 
     client.disconnect()
-    client.loop_stop()
     
 #
 # if run this script directly ,do:
