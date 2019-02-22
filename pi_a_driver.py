@@ -71,7 +71,7 @@ def setup():
     lastWillTopic = "Status/RaspberryPiA"
     client.will_set(lastWillTopic, lwm, qos = 2, retain = True)
     
-    client.connect(host="10.153.0.239", port="1883")
+    client.connect(host="10.154.54.16", port="1883")
     pass
 
 def main():
